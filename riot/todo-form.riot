@@ -1,0 +1,35 @@
+<todo-form>
+  <form onsubmit={ add }>
+    <input onkeyup={ edit } value={ state.text } />
+    <button disabled={ !state.text }>
+      Add #{ props.count }
+    </button>
+  </form>
+
+  <script>
+    export default {
+      onBeforeMount(props, state) {
+        // initial state
+        this.state = {
+          text: ''
+        }
+      },
+      edit(e) {
+        // update only the text state
+        this.update({
+          text: e.target.value
+        })
+      },
+      add(e) {
+        e.preventDefault()
+
+        if (this.state.text) {
+          this.props.add(this.state.text)
+          this.update({
+            text: '',
+          });
+        }
+      },
+    }
+  </script>
+</todo-form>

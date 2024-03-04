@@ -1,0 +1,13 @@
+<todo-items>
+  <ul>
+    <li each={ item in this.props.items }>
+      <label class={ item.done ? 'completed' : null }>
+        <input
+          type="checkbox"
+          checked={ item.done }
+          onclick={ () => this.props.toggle(item) } />
+        { item.title }
+      </label>
+    </li>
+  </ul>
+</todo-items>

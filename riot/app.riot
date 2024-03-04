@@ -1,0 +1,40 @@
+<app>
+  <h3>{this.props.title}<h3>
+  <todo-form count="{this.state.items.length + 1}" add="{add}"></todo-form>
+  <todo-items items={state.items} toggle={toggle}></todo-items>
+
+  <script>
+    import TodoForm from './todo-form.riot';
+    import TodoItems from './todo-items.riot';
+
+    let unsubscribe;
+    export default {
+      components: {
+        TodoForm,
+        TodoItems,
+      },
+      onBeforeMount(props, state) {
+        // initial state
+        this.state = {
+          items: props.getState(),
+        }
+      },
+      onMounted(props, state){
+        unsubscribe = this.props.subscribe(state => {
+          this.update({
+            items: state.todos
+          })
+        })
+      },
+      onUnmounted(){
+        unsubscribe();
+      },
+      add(title) {
+        this.props.getState().add(title)
+      },
+      toggle(title) {
+        this.props.getState().toggle(title)
+      }
+    }
+  </script>
+</app>
