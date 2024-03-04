@@ -235,7 +235,8 @@ Add a basic form and start putting together the features it will need
 
 ```html
 <script>
-  onBeforeMount(props, state) {
+  export default {
+    onBeforeMount(props, state) {
       // initial state
       this.state = {
         text: ''
@@ -257,6 +258,7 @@ Add a basic form and start putting together the features it will need
         });
       }
     },
+  }
 </script>
 ```
 
@@ -264,7 +266,7 @@ Add a basic form and start putting together the features it will need
 
 - updating a form input element - the _keyup_ event is used to update the internal state of the component to reflect the value in the _input field_. And since the binding is two-way, the value of the _input field_ is set to reflect the value of the component's inner state.
 
-- the value of the foerm's input field is cleared when the _add_ button is clicked. This is done by setting the internal state of the component to an empty string.
+- the value of the form's input field is cleared when the _add_ button is clicked. This is done by setting the internal state of the component to an empty string.
 
 13. The _todo-form_ component is now ready for prime time and can be tested in the browser by adding it to the _<app>_ component as its child. To register any component, like in this case a child component, it can be done inside parent (in this case the __app__) or globally. For this exercise, I will configure the child inside the parent
 
@@ -445,7 +447,7 @@ label {
 }
 ```
 
-17. Configure _copy-webpack-plugin_ to copy the _css_file into the _dist_folder
+17. Configure _copy-webpack-plugin_ to copy the _css_ file into the _dist_folder
 
 ```bash
 npm i -D copy-webpack-plugin
@@ -515,8 +517,7 @@ export const store = createStore((set) => ({
 19. Switch out internal state in _app_ component to use _zustand_ store
 
 ```js
-import * as riot from 'riot'
-import App from '../riot/app.riot'
+...
 import {store} from './store';
 
 const mountApp = riot.component(App);
@@ -539,7 +540,7 @@ onBeforeMount(props, state) {
 },
 ```
 
-20. Use the _getState_ function to retrieve the current _todos_ state, and the _subscribe_ function to trigger the _app_ component's __update()_ function whenever a change in the store's data is detected.
+20. Use the _getState_ function to retrieve the current _todos_ state, and the _subscribe_ function to trigger the _app_ component's _update()_ function whenever a change in the store's data is detected.
 
 ```js
 <script>
@@ -581,6 +582,6 @@ onBeforeMount(props, state) {
 ### key takeaways
 
 - _add_ and _toggle_ no longer manipulate state directly any more. They instead delegate their original roles to the _add_ and _toggle_ functions in _zustand_'s store, respectively.
-- three (3) lifecycle method for _riot_ components now come into play - _onBeforeMount_, _onMounted_ and _onMounted_. They are used to (1) define the initial state of the component's, (2) latch onto the store's _subscribe_ function and (3) _unsubscribe_ from the store, respectively. When the state of the store changes, this triggers the calback in the _subscribe_ method, and at this point, the component can decide on how to act on that information. In this scenario, the desired effect is simply to rerener the list component.
-- the _todos_ state can now be used in other places, and _not ONLY_ in the _app_ component.
-- in the component's _update({...})_ function, one can optionally pass a map of values which the component is interested in detecting whether a change has occured, so that the re-rendering only happens for a specific subset of state properties. 
+- three (3) lifecycle method for _riot_ components now come into play - _onBeforeMount_, _onMounted_ and _onMounted_. They are used to (1) define the initial state of the component's, (2) latch onto the store's _subscribe_ function and (3) _unsubscribe_ from the store, respectively. When the state of the store changes, this triggers the calback in the _subscribe_ method, and at this point, the component can decide on how to act on that information. In this scenario, the desired effect is simply to re-render the list component.
+- the _todos_ state can now be used in other places, and _not just_ in the _app_ component.
+- in the component's _update({...})_ function, one can optionally pass a map of values which the component is interested in detecting whether a change has occured, so that the re-rendering only happens for a specific subset of state properties (this reduces the footprint of re-renders, which makes the process a lot more controlled and efficient). 
