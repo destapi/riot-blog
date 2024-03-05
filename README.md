@@ -1,4 +1,4 @@
-# Small but mighty - Riot JS + Zustand
+# Small but mighty - Riot JS
 
 Riot is a tiny and reactive web component library which is simply refreshing to use 
 
@@ -37,11 +37,11 @@ C:.
         app.riot
 ```
 
-> With Riot, you can optionally compile components directly in the browser, or you can pre-compile them into bundles which the html page can then use. In this exercise, I will be precompiling the bundles.  
+> With Riot, you can optionally compile components directly in the browser, or you can pre-compile them into bundles which the html page can then use. In this exercise, I will be pre-compiling the bundles.  
 
 > With Riot, you can precompile bundles using different widely used tools, including Webpack, Rollup, Parcel and Browserify. In this exercise, I will use Webpack simply because of its ubiquity
 
-3. Install neccessary dependencies
+3. Install necessary dependencies
 
 ```bash
 npm i riot
@@ -78,7 +78,7 @@ module.exports = {
 }
 ```
 
-> The _mode: 'development'_ and _devtool: 'inline-source-map'_ properties are _not mandatory_, but for development purposes, it makes viewing and understanding the generated code a lot easier.  
+> The _mode: 'development'_ and _devtool: 'inline-source-map'_ properties are _not mandatory_, but for development purposes, it makes viewing and debugging the generated code a lot easier.  
 
 5. Add a build step in _package.json_, which can be executed as _npm run build_
 
@@ -128,7 +128,7 @@ const app = mountApp(
 npm run build
 ```
 
-9. Add a home page template (_index.html_) to attach onto and and display the app components
+9. Add a home page template (_index.html_) to attach onto and display the app components
 
 ```html
 <!DOCTYPE html>
@@ -262,7 +262,7 @@ Add a basic form and start putting together the features it will need
 </script>
 ```
 
-### key takewaways
+### key takeaways
 
 - updating a form input element - the _keyup_ event is used to update the internal state of the component to reflect the value in the _input field_. And since the binding is two-way, the value of the _input field_ is set to reflect the value of the component's inner state.
 
@@ -318,7 +318,7 @@ const app = mountApp(
 </app>
 ```
 
-### key takeways
+### key takeaways
 
 - importing any component into the application can be accomplished using the _import_ statement
 - a component can be registered at the global level, or can be configured as a child of an existing component
@@ -375,7 +375,7 @@ touch riot/todo-items.riot
 - scoped to each component
 - higher level styling to affect multiple components
 
-in this case, a little styling can be added to the _todo-list_ via a seperate css file, although this same styling can be added using a _style_ tag right inside the _app_ component. Again, it's purely just a matter of style, convenience and design goals.
+in this case, a little styling can be added to the _todo-list_ via a separate css file, although this same styling can be added using a _style_ tag right inside the _app_ component. Again, it's purely just a matter of style, convenience and design goals.
 
 > Create the styles file
 
@@ -471,7 +471,7 @@ module.exports = {
 };
 ```
 
-### key takaways
+### key takeaways
 
 - it would still be ok to move the todos list from _app_ to the _todo-items_ component. It's really a matter of style and one's tolerance level to props drilling.
 - once again, the key to re-rendering the component is by calling the _this.update({...})_ function when the internal state of the component has changed. I prefer using this explicit trigger to kick off updates, instead of relying on exotic, inference techniques, at least for components where complexity can be avoided.
@@ -480,7 +480,7 @@ module.exports = {
 
 ## Zustand - state management
 
-_Zustand_ is a barebone state-management solution which uses simplified _flux_ principles, and can be used in different frameworks, or in standalone mode. For this exercise, I will use it in standalone mode to provide the data backing necessary for the _todo-list_ app
+_Zustand_ is a bare-bone state-management solution which uses simplified _flux_ principles, and can be used in different frameworks, or in standalone mode. For this exercise, I will use it in standalone mode to provide the data backing necessary for the _todo-list_ app
 
 ```bash
 npm i zustand
@@ -581,7 +581,275 @@ onBeforeMount(props, state) {
 
 ### key takeaways
 
-- _add_ and _toggle_ no longer manipulate state directly any more. They instead delegate their original roles to the _add_ and _toggle_ functions in _zustand_'s store, respectively.
-- three (3) lifecycle method for _riot_ components now come into play - _onBeforeMount_, _onMounted_ and _onMounted_. They are used to (1) define the initial state of the component's, (2) latch onto the store's _subscribe_ function and (3) _unsubscribe_ from the store, respectively. When the state of the store changes, this triggers the calback in the _subscribe_ method, and at this point, the component can decide on how to act on that information. In this scenario, the desired effect is simply to re-render the list component.
+- _add_ and _toggle_ no longer manipulate state directly anymore. They instead delegate their original roles to the _add_ and _toggle_ functions in _zustand_'s store, respectively.
+- three (3) lifecycle method for _riot_ components now come into play - _onBeforeMount_, _onMounted_ and _onMounted_. They are used to (1) define the initial state of the component's, (2) latch onto the store's _subscribe_ function and (3) _unsubscribe_ from the store, respectively. When the state of the store changes, this triggers the callback in the _subscribe_ method, and at this point, the component can decide on how to act on that information. In this scenario, the desired effect is simply to re-render the list component.
 - the _todos_ state can now be used in other places, and _not just_ in the _app_ component.
-- in the component's _update({...})_ function, one can optionally pass a map of values which the component is interested in detecting whether a change has occured, so that the re-rendering only happens for a specific subset of state properties (this reduces the footprint of re-renders, which makes the process a lot more controlled and efficient). 
+- in the component's _update({...})_ function, one can optionally pass a map of values which the component is interested in detecting whether a change has occurred, so that the re-rendering only happens for a specific subset of state properties (this reduces the footprint of re-renders, which makes the process a lot more controlled and efficient). 
+
+## Pushing boundaries
+
+21. What if the _zustand_ store is pushed to the backend, so that the data in the _frontend_ store is always in sync with the _backend_ store, and be able to survive a full page refresh? Well, firth things first. I'll create a Nodejs backend
+
+```bash
+mkdir server && cd server
+
+npm express-generator --no-view
+
+npm i cors
+```
+
+This will generate a bare-bone server application with some endpoints. I'll use the _cors_ middleware to accept requests coming from another domain, in this case, the _dev-server_. I also refactored the routes generated to have only one entry point (for convenience)
+
+```js
+const cors = require('cors');   //importing cors middleware
+
+const appRoutes = require('./routes');  // importing refactored routes
+
+const app = express();
+
+app.use(cors());        // added cors middleware
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(appRoutes);     // single entrypoint to routes
+```
+
+22. Create a _store_ folder and configure a _zustand_ store
+
+```bash
+mkdir store
+
+touch store/index.js
+
+const { createStore } = require ('zustand/vanilla');
+
+module.exports = createStore((set) => ({
+  todos: [],  
+  add: (title) => set((state) => ({...state, todos: [...state.todos, {title, done: false}]})),
+  toggle: (title) => set((state) => ({...state, todos: state.todos.map(s => {
+      if(s.title === title){
+        return ({...s, done: !s.done});
+      }
+      return s;
+    })})),
+}))
+```
+
+The _backend zustand_ store has many similarities to the _frontend zustand_ store. The two don't have to be identical, but they will inevitably share a lot of similar characteristics.
+
+23. Now, refactor the _server/routes_ folder to have these files. The idea is to create handlers that will interact with the _zustand_ store above. The implementation is extremely basic and not production-quality, but it is that way for illustration and to easily make the necessary points.
+
+```
+server/routes/
+|-- events.js
+|-- index.js
+`-- todos.js
+```
+
+> index.js - convergence of _/todos_ and _/events_ handlers into a single entrypoint
+```js
+const express = require('express');
+const router = express.Router();
+
+const todoRoutes = require('./todos');
+const eventRoutes = require('./events');
+
+router.use('/todos', todoRoutes);
+router.use('/events', eventRoutes);
+
+module.exports = router;
+```
+
+> todos.js - only two handles are in play for this demonstration - _add todo_ and _toggle todos_
+```js
+const express = require('express');
+const router = express.Router();
+const store = require('../store');      // zustand store
+
+router.get('/', function(req, res, next) {
+    res.json(store.getState().todos);
+});
+
+router.post('/:title', function(req, res, next) {
+    const title = req.params['title'];
+    store.getState().add(title);
+    res.sendStatus(200);
+});
+
+router.put('/:title', function(req, res, next) {
+    const title = req.params['title'];
+    store.getState().toggle(title);
+    res.sendStatus(200);
+});
+
+module.exports = router;
+```
+
+> events.js - EventSource endpoint. This is where _zustand_ meets _EventSource_
+```js
+const express = require('express');
+const router = express.Router();
+const store = require('../store');      // zustand store
+
+const writers = {}
+
+router.get('/:user', function (req, res) {
+    const user = req.params["user"];
+    if (writers[user]) {
+        console.log(`closing previous connection before saving a new one for ${user}`)
+        writers[user].end('OK')
+    }
+    writers[user] = res;
+
+    //keep connection open
+    res.set({
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'text/event-stream',
+        'Connection': 'keep-alive'
+    });
+    res.flushHeaders();
+
+    // Tell the client to retry every 10 seconds if connectivity is lost
+    res.write('retry: 10000\n\n');
+
+    //Now handle business
+    let counter = 0;
+
+    // subscribe to the store and fan-out updates to the connected clients
+    store.subscribe((state, prev) => {
+        console.log('state\n\n', state, 'prev\n\n', prev);
+        if (state.todos.length > prev.todos.length) {
+            res.write('event: add\n');
+            res.write(`data: ${JSON.stringify(state.todos.slice(-1)[0])}\n`);
+            res.write(`id: ${counter}\n\n`);
+        } else {
+            res.write('event: toggle\n');
+            res.write(`data: ${JSON.stringify(state.todos)}\n`);
+            res.write(`id: ${counter}\n\n`);
+        }
+        counter++;
+    })
+
+    // Close the connection when the client disconnects
+    req.on('close', () => res.end('OK'))
+});
+
+module.exports = router;
+```
+
+24. In the _frontend_, the _zustand_ store will need some updates to work with the backend. Instead of receiving events from the frontend UI, the store will now receive events from the backend server.
+
+```js
+import {createStore} from 'zustand/vanilla'
+
+export const store = createStore((set) => ({
+    todos: [],
+    // add: (title) => set((state) => ({...state, todos: [...state.todos, {title, done: false}]})),
+    // toggle: (item) => set((state) => ({
+    //     ...state, todos: state.todos.map(s => {
+    //         if (s.title === item.title) {
+    //             return ({...s, done: !s.done});
+    //         }
+    //         return s;
+    //     })
+    // })),
+    initTodos: (todos) => set((state) => ({...state, todos: [...state.todos, ...todos]})),
+    addTodo: (todo) => set((state) => ({...state, todos: [...state.todos, todo]})),
+    toggleTodos: (todos) => set((state) => ({...state, todos})),
+}))
+```
+
+25. This means that a connection needs to be established to the backend to receive these events. This is accomplished using an _EventSource_endpoint. In _riot/app.riot_, make the following changes
+
+```js
+<script>
+    import TodoForm from './todo-form.riot';
+    import TodoItems from './todo-items.riot';
+    
+    const remoteUrl = "http://localhost:3000";
+    let unsubscribe;
+    export default {
+      components: {
+        TodoForm,
+        TodoItems,
+      },
+      onBeforeMount(props, state) {
+        // initial state
+        this.state = {
+          items: props.getState(),
+        }
+      },
+      onMounted(props, state){
+        unsubscribe = this.props.subscribe(state => {
+          this.update({
+            items: state.todos
+          })
+        });
+        this.initialTodos();
+        this.startEvents();
+      },
+      onUnmounted(){
+        unsubscribe();
+      },
+      add(title) {
+        // this.props.getState().add(title)
+        fetch(`${remoteUrl}/todos/${title}`, { method: 'POST', })
+                // .then(res => res.json())
+                .then(data => {
+                  console.log('add todo status', data);
+                })
+      },
+      toggle(item) {
+        // this.props.getState().toggle(title)
+        fetch(`${remoteUrl}/todos/${item.title}`, { method: 'PUT', })
+                // .then(res => res.json())
+                .then(data => {
+                  console.log('toggle todo status', data);
+                })
+      },
+      startEvents(){
+        const sub = new EventSource(`${remoteUrl}/events/jimmy`);
+    
+        // Default events
+        sub.addEventListener('open', () => {
+            console.log('Connection opened')
+        });
+    
+        sub.addEventListener('error', () => {
+            console.error("Subscription err'd")
+        });
+    
+        sub.addEventListener('add', (event) => {
+            const data = JSON.parse(event.data);
+            this.props.getState().addTodo(data);
+        });
+    
+        sub.addEventListener('toggle', () => {
+            const data = JSON.parse(event.data);
+            this.props.getState().toggleTodos(data);
+        });
+      },
+      initialTodos(){
+        fetch(`${remoteUrl}/todos`)
+        .then(res => res.json())
+        .then(data => {
+          this.props.getState().initTodos(data);
+        })
+      },
+    }
+</script>
+```
+
+The only changes made to the file above are as follows:
+
+- the _add_ and toggle methods now send the user input to the backend, instead of updating the _frontend_ store __directly__ and __synchronously__. The actual update to the _frontend_ store will be handled __asynchronously__ from __server-sent events__.
+- the _initialTodos_ was added to re-initialize the _frontend_ store using the state that exists in the _backend_ in the event that a full-page refresh happens.
+- the _startEvents_ was added to initiate a __SSE__ connection to the server, so that the _frontend_ store can receive update events from the backend.
+
+### key takeaways
+
+- The result of _add_ or _toggle_ events in the frontend are no longer synchronous. Previously, the result would have either been the requested data or an error. This time, the store events are not _tied_ to a particular request. The frontend store can now be updated asynchronously by multiple users.
+- Asynchronicity allows the same _todolist_ to be updated remotely by multiple users, but the reliability guarantees of synchronous updates no longer exist. As a system designer, this is a very important consideration
+

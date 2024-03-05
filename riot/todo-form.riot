@@ -1,6 +1,8 @@
 <todo-form>
   <form onsubmit={ add }>
-    <input onkeyup={ edit } value={ state.text } />
+    <label>
+      <input onkeyup={ edit } value={ state.text } />
+    </label>
     <button disabled={ !state.text }>
       Add #{ props.count }
     </button>

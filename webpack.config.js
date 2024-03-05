@@ -35,6 +35,11 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: "public/style.css", to: "style.css" },
+        { from: "public/apple-touch-icon.png", to: "apple-touch-icon.png" },
+        { from: "public/favicon-16x16.png", to: "favicon-16x16.png" },
+        { from: "public/favicon-32x32.png", to: "favicon-32x32.png" },
+        { from: "public/favicon.ico", to: "favicon.ico" },
+        { from: "public/site.webmanifest", to: "site.webmanifest" },
       ],
     }),
   ],

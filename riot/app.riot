@@ -1,5 +1,5 @@
 <app>
-  <h3>{this.props.title}<h3>
+  <h3>{this.props.title}</h3>
   <todo-form count={this.state.items.length + 1} add={add}></todo-form>
   <todo-items items={state.items} toggle={toggle}></todo-items>
 
@@ -7,6 +7,7 @@
     import TodoForm from './todo-form.riot';
     import TodoItems from './todo-items.riot';
 
+    const remoteUrl = "http://localhost:3000";
     let unsubscribe;
     export default {
       components: {
@@ -18,7 +19,6 @@
         this.state = {
           items: props.getState(),
         }
-
       },
       onMounted(props, state){
         unsubscribe = this.props.subscribe(state => {
@@ -33,13 +33,23 @@
         unsubscribe();
       },
       add(title) {
-        this.props.getState().add(title)
+        // this.props.getState().add(title)
+        fetch(`${remoteUrl}/todos/${title}`, { method: 'POST', })
+                // .then(res => res.json())
+                .then(data => {
+                  console.log('add todo status', data);
+                })
       },
-      toggle(title) {
-        this.props.getState().toggle(title)
+      toggle(item) {
+        // this.props.getState().toggle(title)
+        fetch(`${remoteUrl}/todos/${item.title}`, { method: 'PUT', })
+                // .then(res => res.json())
+                .then(data => {
+                  console.log('toggle todo status', data);
+                })
       },
       startEvents(){
-        const sub = new EventSource('http://localhost:3030/events/jimmy');
+        const sub = new EventSource(`${remoteUrl}/events/jimmy`);
 
         // Default events
         sub.addEventListener('open', () => {
@@ -61,12 +71,12 @@
         });
       },
       initialTodos(){
-        fetch("http://localhost:3030/todos")
+        fetch(`${remoteUrl}/todos`)
         .then(res => res.json())
         .then(data => {
           this.props.getState().initTodos(data);
         })
-      }
+      },
     }
   </script>
 </app>
