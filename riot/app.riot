@@ -18,13 +18,16 @@
         this.state = {
           items: props.getState(),
         }
+
       },
       onMounted(props, state){
         unsubscribe = this.props.subscribe(state => {
           this.update({
             items: state.todos
           })
-        })
+        });
+        this.initialTodos();
+        this.startEvents();
       },
       onUnmounted(){
         unsubscribe();
@@ -34,6 +37,35 @@
       },
       toggle(title) {
         this.props.getState().toggle(title)
+      },
+      startEvents(){
+        const sub = new EventSource('http://localhost:3030/events/jimmy');
+
+        // Default events
+        sub.addEventListener('open', () => {
+            console.log('Connection opened')
+        });
+
+        sub.addEventListener('error', () => {
+            console.error("Subscription err'd")
+        });
+
+        sub.addEventListener('add', (event) => {
+            const data = JSON.parse(event.data);
+            this.props.getState().addTodo(data);
+        });
+
+        sub.addEventListener('toggle', () => {
+            const data = JSON.parse(event.data);
+            this.props.getState().toggleTodos(data);
+        });
+      },
+      initialTodos(){
+        fetch("http://localhost:3030/todos")
+        .then(res => res.json())
+        .then(data => {
+          this.props.getState().initTodos(data);
+        })
       }
     }
   </script>

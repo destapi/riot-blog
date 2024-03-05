@@ -9,4 +9,7 @@ export const store = createStore((set) => ({
       }
       return s;
     })})),
+    initTodos: (todos) => set((state) => ({...state, todos: [...state.todos, ...todos]})),
+    addTodo: (todo) => set((state) => ({...state, todos: [...state.todos, todo]})),
+    toggleTodos: (todos) => set((state) => ({...state, todos: [...state.todos, ...todos]})),
 }))
