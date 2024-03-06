@@ -5,3 +5,4 @@
 * [Zustand in the Frontend](/zustand-front.md)
 * [Zustand in the Backend](/zustand-back.md)
 * [Redis to the Rescue](/redis-rescue.md)
+* [React Equivalent](/react-app.md)
