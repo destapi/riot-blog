@@ -15,23 +15,25 @@ npx create vite@latest
 Prepare the generated project for the use by doing the following:
 - remove unnecessary files
 - Clean up App.jsx file
-```js
-function App() {
 
-  return (
-    <>
-      
-    </>
-  )
-}
+    ```js
+    function App() {
 
-export default App
-```
+    return (
+        <>
+        
+        </>
+    )
+    }
+
+    export default App
+    ```
+
 - create _components_ and _store_ folders 
 - create _index.jsx_ inside _store_ folder
 - create _TodoForm.jsx_ and _TodoItems.jsx_ files in the _components_ folder 
 
-> Note that for a _React_ application, _vite_ requires using _.jsx_ extention and enable JSX syntax  
+> Note that for a _React_ application, _vite_ requires using the _.jsx_ extension to enable JSX syntax  
 
 ```bash
 # completed set up
@@ -328,11 +330,11 @@ export default App
 
 ```
 
-The _App_ continues to work as expected. The _application state_ is no longer inside the _App_ component, but is now moved off into a seperate component whose role is purely to manage that state. 
+The _App_ continues to work as expected. The _application state_ is no longer inside the _App_ component, but has been moved off into a seperate component whose role is purely to manage that state. 
 
 ### Connect to remote server (Redis state)
 
-But now this application needs to be connected to _Redis_ for getting _application state_ updates, just like the _riot_ app from the past section did. First thing is to use use the fetch API in the AppContext
+But now this application needs to be connected to _Redis_ to get _application state_ updates, just like the _riot_ app from the past section did. The first thing to do, is to make use of _fetch API_ in the AppContext
 
 Create a new file _react/store/events.jsx_ and copy over the _startEvents_ function from the _riot_ example, and make just a slight change in the function arguments.
 
