@@ -232,9 +232,18 @@ It's easy to try to solve all problems the same way when all the tools looks the
 
 - It takes some getting used to, but async request/response is a great option for backend where horizontal scaling is a huge criteria
 - _Redis_ already solves a lot of challenges with backend scaling, but it's not the only solution. There are certain limitations that come with _Redis_ which you much understand before using it
-    - it follows a fire-and-forget paradigm. Think of it as a radio station. The radio station will not re-transmit their signal if you didn't catch a word. You just have to live with it.
+    - it follows a fire-and-forget paradigm. Think of it as a radio station. The radio station will not re-transmit their signal if you didn't catch a word. You have to live with the implications of that design choice.
     - it is synchronous; in that, just like a radio station where you must be tuned in to catch the transmission, the consumers of _Redis_ similarly have to be available to receive messages
     - it follows a fan-out approach. Again, like a radio station, where the transmission is not targeted to one user only or a handful of users, the messages from _Redis_ are similarly not designated for a particular listener.
       Anyone listening on a channel will get all the messages sent to that channel
+- Tools like _Kafka_ (java) and _Nats_ (Go), and more so with _kafka_, have very elaborate strategies that can be configured to achieve other features like. And the price of this power and flexibility is of course the increased 
+complexity of properly using these tools
+  - point-to-point messaging
+  - topic partitions
+  - consumer groups
+  - append-only logs (file persistence)
+  - message replay capability
+  - delivery acknowledgement strategies
+  - etc
 - _Zustand_ is a really solid framework for state management, and it really shines through in the UI, where it works even in standalone mode.
 - Riot js is a true breath of fresh air. The noise from oiling the gears of React js just completely vanishes, and development is once again blissful. This is not a knock against React. I'm just stating an observation.
