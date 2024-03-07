@@ -94,7 +94,7 @@ export default function TodoForm(props) {
 }
 ```
 
-Naturally, the next component to work on is the _TodoItems_. Once again upon examinig the _riot_ version of the same components in _riot/todo-items.riot_, the similarities are equally unmistakable. The biggest difference is that the loop function in _riot_ in embedded as an element attribute, while _React_ uses the _nap_ function of array. I personally think having the loop definition done as an attribute is much cleaner and friendlier to the eye. 
+Naturally, the next component to work on is the _TodoItems_. Once again upon examinig the _riot_ version of the same components in _riot/todo-items.riot_, the similarities are equally unmistakable. The biggest difference is that the loop function in _riot_ in embedded as an element attribute, while _React_ uses the _map_ function of a javascript array. I personally think having the loop declared as an attribute of a html element is much cleaner and friendlier to the eye. 
 
 ```js
 export default function TodoItems(props){
