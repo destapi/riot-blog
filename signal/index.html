@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="reactive.js" type="module"></script>
+</head>
+
+<body>
+    <main root="name"></main>
+    <form>
+        <input name="name" />
+        <input type="submit" value="Update Name" />
+    </form>
+
+    <items-list container="ul" items="items" key="id">
+        <li>My name is ${title}</li>
+    </items-list>
+
+    <script type="module">
+        import { createSignal, createEffect } from "./reactive.js";
+
+        document.querySelector("form").addEventListener('submit', e => {
+            e.preventDefault();
+            const form = new FormData(e.target);
+            setName(form.get('name'))
+        });
+
+        //try out signal/effect
+        const [count, setCount] = createSignal(0);
+
+        const button = document.createElement('button');
+        createEffect(() => {
+            button.innerText = count();
+        });
+        button.addEventListener('click', () => {
+            setCount(count() + 1);
+        });
+
+        document.body.append(button);
+    </script>
+</body>
+
+</html>
