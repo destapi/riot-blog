@@ -41,6 +41,16 @@ class TemplateParserTest {
     }
 
     @Test
+    void test_loading_and_parsing_template_tags_3_xml() {
+        String file = "/template-tags3.xml";
+        TemplateProcessor processor = new TemplateProcessor(Map.of("name", "Jimbob", "visible", true, "over", false));
+        TemplateParser parser = new TemplateParser(file, processor);
+        JElement root = assertDoesNotThrow(parser::parse, "Not expecting error to be thrown");
+        assertThat(root.children).hasSize(0);
+        assertThat(processor.process(root)).isEqualTo("<p class=\"fa fa-memo\">My name is Jimbob</p>");
+    }
+
+    @Test
     void test_loading_and_parsing_plain_tags_xml() {
         String file = "/plain-tags.xml";
         TemplateProcessor processor = new TemplateProcessor(emptyMap());

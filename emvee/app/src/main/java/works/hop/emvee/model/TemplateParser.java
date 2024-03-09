@@ -1,5 +1,7 @@
 package works.hop.emvee.model;
 
+import org.mvel2.MVEL;
+
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -65,6 +67,10 @@ public class TemplateParser {
                                 element.setTextExpression(attrValue);
                                 break;
                             }
+                            case "x-template": {
+                                element.setTemplateNode((Boolean) MVEL.eval(attrValue));
+                                break;
+                            }
                             default: {
                                 element.attributes.put(attrName, attrValue);
                                 break;
@@ -105,10 +111,15 @@ public class TemplateParser {
             if (nextEvent.isCharacters()) {
                 String data = nextEvent.asCharacters().getData().trim();
                 if (!data.isEmpty()) {
-                    JElement textNode = new JElement();
-                    textNode.setTextNode(true);
-                    textNode.setTextContent(data);
-                    Objects.requireNonNull(stack.peek()).children.add(textNode);
+                    if(stack.peek().isTemplateNode){
+                        stack.peek().setTemplateContent(data);
+                    }
+                    else {
+                        JElement textNode = new JElement();
+                        textNode.setTextNode(true);
+                        textNode.setTextContent(data);
+                        Objects.requireNonNull(stack.peek()).children.add(textNode);
+                    }
                 }
             }
         }

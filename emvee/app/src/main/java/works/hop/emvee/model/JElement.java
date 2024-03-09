@@ -1,6 +1,7 @@
 package works.hop.emvee.model;
 
 import org.mvel2.MVEL;
+import org.mvel2.templates.TemplateRuntime;
 
 import java.util.*;
 
@@ -14,8 +15,10 @@ public class JElement extends JObject {
     protected String listItemsKey;
     protected String textExpression;
     protected String textContent;
+    protected String templateContent;
     protected boolean isComponent;
     protected boolean isTextNode;
+    protected boolean isTemplateNode;
     protected Map<String, String> attributes = new LinkedHashMap<>();
     protected List<JElement> children = new LinkedList<>();
 
@@ -75,6 +78,14 @@ public class JElement extends JObject {
         this.textContent = textContent;
     }
 
+    public String getTemplateContent() {
+        return templateContent;
+    }
+
+    public void setTemplateContent(String templateContent) {
+        this.templateContent = templateContent;
+    }
+
     public boolean isComponent() {
         return isComponent;
     }
@@ -89,6 +100,14 @@ public class JElement extends JObject {
 
     public void setTextNode(boolean textNode) {
         isTextNode = textNode;
+    }
+
+    public boolean isTemplateNode() {
+        return isTemplateNode;
+    }
+
+    public void setTemplateNode(boolean templateNode) {
+        isTemplateNode = templateNode;
     }
 
     public JElement[] children() {
@@ -140,6 +159,9 @@ public class JElement extends JObject {
             builder.append(">");
             if (textExpression != null) {
                 builder.append(MVEL.eval(textExpression, context));
+            }
+            else if(templateContent != null){
+                builder.append(TemplateRuntime.eval(templateContent, context));
             } else {
                 for (JElement child : children) {
                     child.setContext(context);
