@@ -88,13 +88,24 @@ public interface JNode {
     }
 
     /**
-     * JObject add new or replace value in a map
+     * JObject add new value with given key into a map
      *
      * @param parent value of parent node if it exists
      * @param key    value used as key in the map
-     * @param value  value replaced in the map or value added if none existed prior
+     * @param value  value put into the map
      */
     default void put(JNode parent, String key, Object value) {
+
+    }
+
+    /**
+     * JObject replace value with given key in a map
+     *
+     * @param parent value of parent node if it exists
+     * @param key    value used as key in the map
+     * @param value  value replaced in the map
+     */
+    default void replace(JNode parent, String key, Object value) {
 
     }
 

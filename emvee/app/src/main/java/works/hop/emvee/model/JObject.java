@@ -38,6 +38,11 @@ public class JObject extends LinkedHashMap<String, Object> implements JNode {
     }
 
     @Override
+    public void replace(JNode parent, String key, Object value) {
+        super.replace(key, value);
+    }
+
+    @Override
     public Object remove(JNode parent, String key) {
         return super.remove(key);
     }
