@@ -111,10 +111,9 @@ public class TemplateParser {
             if (nextEvent.isCharacters()) {
                 String data = nextEvent.asCharacters().getData().trim();
                 if (!data.isEmpty()) {
-                    if(stack.peek().isTemplateNode){
+                    if (stack.peek().isTemplateNode) {
                         stack.peek().setTemplateContent(data);
-                    }
-                    else {
+                    } else {
                         JElement textNode = new JElement();
                         textNode.setTextNode(true);
                         textNode.setTextContent(data);

@@ -1,5 +1,8 @@
 package works.hop.emvee;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.server.*;
@@ -7,7 +10,6 @@ import org.eclipse.jetty.server.handler.*;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import works.hop.emvee.handlers.SimpleHandler;
 
 import java.io.IOException;
 
@@ -60,7 +62,12 @@ public class App {
     private static void simpleHandler(ContextHandlerCollection chc) {
         // Create a ContextHandler with contextPath.
         ContextHandler context = new ContextHandler("/shop");
-        context.setHandler(new SimpleHandler());
+        context.setHandler(new AbstractHandler() {
+            @Override
+            public void handle(String path, Request request, HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
+                res.getWriter().println("You reached the club house. Leave a message");
+            }
+        });
         chc.addHandler(context);
     }
 

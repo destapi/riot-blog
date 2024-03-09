@@ -159,8 +159,7 @@ public class JElement extends JObject {
             builder.append(">");
             if (textExpression != null) {
                 builder.append(MVEL.eval(textExpression, context));
-            }
-            else if(templateContent != null){
+            } else if (templateContent != null) {
                 builder.append(TemplateRuntime.eval(templateContent, context));
             } else {
                 for (JElement child : children) {
