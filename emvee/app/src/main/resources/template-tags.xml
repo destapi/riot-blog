@@ -1,0 +1,5 @@
+<x-p x-if="visible" class="bg-dark">
+    <x-span class="title" x-text="name">Glenn</x-span>
+    <i class="fa fa-check"></i>
+    <x-i x-if="over" class="fa fa-star" x-text="name">Bimbo</x-i>
+</x-p>

@@ -1,0 +1,116 @@
+package works.hop.emvee.model;
+
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.Stack;
+
+public class TemplateParser {
+
+    String path;
+    TemplateProcessor processor;
+    Stack<JElement> stack = new Stack<>();
+    JElement lastPopped;
+
+    public TemplateParser(String path, TemplateProcessor processor) {
+        this.path = path;
+        this.processor = processor;
+    }
+
+    public JElement parse() throws XMLStreamException {
+        XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+        XMLEventReader reader = xmlInputFactory.createXMLEventReader(
+                getClass().getResourceAsStream(path));
+        parse(reader);
+        lastPopped.observer(processor);
+        return lastPopped;
+    }
+
+    private void parse(XMLEventReader reader) throws XMLStreamException {
+        while (reader.hasNext()) {
+            XMLEvent nextEvent = reader.nextEvent();
+
+            if (nextEvent.isStartElement()) {
+                JElement element = new JElement();
+                StartElement startElement = nextEvent.asStartElement();
+                String startTag = startElement.getName().getLocalPart();
+                element.setTagName(startTag);
+                if (startTag.startsWith("x-")) {
+                    element.setComponent(true);
+                    for (Iterator<Attribute> iterator = startElement.getAttributes(); iterator.hasNext(); ) {
+                        Attribute attribute = iterator.next();
+                        String attrName = attribute.getName().getLocalPart();
+                        String attrValue = attribute.getValue();
+                        // different attributes require different handling
+                        switch (attrName) {
+                            case "x-if": {
+                                element.setIfExpression(attrValue);
+                                break;
+                            }
+                            case "x-items": {
+                                element.setListExpression(attrValue);
+                                break;
+                            }
+                            case "x-key": {
+                                element.setListItemsKey(attrValue);
+                                break;
+                            }
+                            case "x-text": {
+                                element.setTextExpression(attrValue);
+                                break;
+                            }
+                            default: {
+                                element.attributes.put(attrName, attrValue);
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    for (Iterator<Attribute> iterator = startElement.getAttributes(); iterator.hasNext(); ) {
+                        Attribute attribute = iterator.next();
+                        String attrName = attribute.getName().getLocalPart();
+                        String attrValue = attribute.getValue();
+                        element.attributes.put(attrName, attrValue);
+                    }
+                }
+
+                // add parent-child relationship
+                if (!stack.isEmpty()) {
+                    stack.peek().children.add(element);
+                    element.parent(stack.peek());
+                }
+
+                // push new element into the stack
+                stack.push(element);
+            }
+
+            if (nextEvent.isEndElement()) {
+                EndElement endElement = nextEvent.asEndElement();
+                String endTag = endElement.getName().getLocalPart();
+                JElement tail = stack.peek();
+                //expecting tail to match end tag
+                if (Objects.requireNonNull(tail).getTagName().equals(endTag)) {
+                    lastPopped = stack.pop();
+                } else {
+                    throw new RuntimeException("Expected to get end of <" + endTag + "> tag");
+                }
+            }
+
+            if (nextEvent.isCharacters()) {
+                String data = nextEvent.asCharacters().getData().trim();
+                if (!data.isEmpty()) {
+                    JElement textNode = new JElement();
+                    textNode.setTextNode(true);
+                    textNode.setTextContent(data);
+                    Objects.requireNonNull(stack.peek()).children.add(textNode);
+                }
+            }
+        }
+    }
+}
