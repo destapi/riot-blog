@@ -1,1 +1,0 @@
-<x-p class="fa fa-memo" x-eval="true">My name is @{name}</x-p>

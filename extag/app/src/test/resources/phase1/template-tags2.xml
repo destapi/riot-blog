@@ -1,3 +1,0 @@
-<p class="fa fa-check">Yepee
-    <x-span class="title" x-text="name">Jimmy</x-span>
-</p>
