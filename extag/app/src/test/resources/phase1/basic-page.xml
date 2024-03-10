@@ -1,0 +1,13 @@
+<x-layout x-template="/phase1/basic-template.xml">
+    <x-doctype x-doctype="&lt;!DOCTYPE html&gt;"/>
+    <x-meta hobbby="programming" another="something"/>
+    <x-meta skylight="azure" baseline="yellow"/>
+    <x-link hre="css/reset.css" rel="stylesheet" type="text/css"/>
+    <x-link hre="css/style.css" rel="stylesheet" type="text/css"/>
+    <x-script src="/js/hot-sauce.js" defer="true"></x-script>
+    <x-script src="/js/sweet-sauce.js" defer="true"></x-script>
+
+    <x-title x-named="title" x-text="page.title">The good title</x-title>
+
+    <x-div id="todo-list" x-named="content">I'm here</x-div>
+</x-layout>

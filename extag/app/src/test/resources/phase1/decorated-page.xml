@@ -1,0 +1,28 @@
+<x-layout x-template="/phase1/layout-template.xml">
+    <x-doctype x-doctype="&lt;!doctype html&gt;"/>
+    <x-meta hobbby="reading"/>
+    <x-link hre="css/style.css" rel="stylesheet" type="text/css"/>
+    <x-script src="/js/sauce.js" defer="true"></x-script>
+
+    <x-title x-named="title" x-text="page.title">The good title</x-title>
+
+    <x-div id="todo-list" x-named="content">
+        <form onsubmit="add">
+            <label>
+                <input name="title" onchange="edit"/>
+            </label>
+            <button type="submit">Add</button>
+        </form>
+
+        <x-ul x-items="items" x-key="id">
+            <li>
+                <x-i x-if="done" class="fa fa-square" title="done"></x-i>
+                <x-i x-if="!done" class="fa fa-check-square" title="done"></x-i>
+                <x-span x-text="title">title</x-span>
+                <i class="fa fa-times-circle" title="remove"></i>
+            </li>
+        </x-ul>
+
+        <x-p x-text="items.size()">0</x-p>
+    </x-div>
+</x-layout>

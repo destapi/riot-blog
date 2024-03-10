@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>ExTag Document</title>
+</head>
+<body>
+<div id="todo-list">
+    <form onsubmit="add">
+        <label>
+            <input name="title" onchange="edit"/>
+        </label>
+        <button type="submit">Add</button>
+    </form>
+
+    <x-ul x-items="items" x-key="id">
+        <li>
+            <x-i class="fa fa-square" title="done" x-if="done != true"></x-i>
+            <x-i class="fa fa-check-square" title="done" x-if="done == true"></x-i>
+            <x-span x-text="title">title</x-span>
+            <i class="fa fa-times-circle" title="remove"></i>
+        </li>
+    </x-ul>
+
+    <x-p text="count(items)">0</x-p>
+</div>
+
+<script>
+    function add(e){
+        e.preventDefault();
+        console.log('stopping event for now');
+    }
+
+    function edit(e){
+        console.log(e.target.value);
+    }
+</script>
+</body>
+</html>

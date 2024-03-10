@@ -1,0 +1,27 @@
+<!--<!doctype html>-->
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport"
+              content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
+        <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+        <x-meta/>
+        <x-link/>
+        <x-title x-slot="title">Default Title</x-title>
+        <x-script/>
+    </head>
+    <body>
+        <nav>
+            <menu>
+                <li>Login</li>
+            </menu>
+        </nav>
+        <x-main x-slot="content"></x-main>
+        <x-footer x-slot="footer">
+            <div>
+                <span class="sticky">&amp;copy; 2024 ExTag</span>
+            </div>
+        </x-footer>
+        <script src="special-sauce.js" type="module"></script>
+    </body>
+</html>

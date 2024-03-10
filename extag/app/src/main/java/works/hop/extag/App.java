@@ -75,7 +75,7 @@ public class App {
         // Create and configure a ResourceHandler.
         ResourceHandler handler = new ResourceHandler();
         // Configure the directory where static resources are located.
-        handler.setBaseResource(Resource.newResource("www"));
+        handler.setBaseResource(Resource.newResource("extag/www"));
         // Configure directory listing.
         handler.setDirAllowed(false);
         // Configure welcome files.
@@ -109,9 +109,5 @@ public class App {
 
         // Start the Server to start accepting connections from clients.
         server.start();
-    }
-
-    public String getGreeting() {
-        return "Hello World!";
     }
 }

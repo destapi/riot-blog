@@ -1,0 +1,12 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <x-meta/>
+        <x-link/>
+        <x-title x-slot="title">Default Title</x-title>
+        <x-script/>
+    </head>
+    <body>
+        <x-main x-slot="content"></x-main>
+    </body>
+</html>
