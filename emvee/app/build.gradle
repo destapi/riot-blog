@@ -9,12 +9,13 @@ repositories {
 }
 
 dependencies {
+    // jetty 11
     implementation 'org.eclipse.jetty:jetty-server:11.0.20';
     implementation 'org.eclipse.jetty:jetty-servlet:11.0.20';
     implementation 'org.eclipse.jetty.http2:http2-server:11.0.20';
     implementation 'org.eclipse.jetty:jetty-alpn-java-server:11.0.20';
 
-    // temlate engine
+    // template engine
     implementation 'org.mvel:mvel2:2.5.2.Final'
 
     // logging

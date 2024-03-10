@@ -3,23 +3,44 @@ package works.hop.emvee.model;
 import org.mvel2.MVEL;
 import org.mvel2.templates.TemplateRuntime;
 
+import javax.xml.stream.XMLStreamException;
 import java.util.*;
 
 public class JElement extends JObject {
 
-    public static final List<String> selfClosing = List.of("area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr");
+    public static final List<String> selfClosingTags = List.of("area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr");
+    public static final List<String> decoratorTags = List.of("doctype", "meta", "link", "style", "script");
     protected String tagName;
+    protected String slotName;
+    protected String slotRef;
     protected Object context;
     protected String ifExpression;
     protected String listExpression;
     protected String listItemsKey;
     protected String textExpression;
     protected String textContent;
-    protected String templateContent;
+    protected String evalContent;
+    protected String includePath;
+    protected String templatePath;
+    protected String docTypeTag;
+    protected JElement templateElement;
     protected boolean isComponent;
     protected boolean isTextNode;
-    protected boolean isTemplateNode;
+    protected boolean isEvalNode;
+    protected boolean isLayoutSlot;
+    protected boolean isSlotNode;
+    protected boolean isLayoutNode;
+    protected boolean isDecoratorNode;
+    protected JElement docTypeElement;
     protected Map<String, String> attributes = new LinkedHashMap<>();
+    protected Map<String, JElement> slots = new LinkedHashMap<>();
+    protected Map<String, List<JElement>> decorators = new HashMap<>() {
+        {
+            put("script", new LinkedList<>());
+            put("link", new LinkedList<>());
+            put("meta", new LinkedList<>());
+        }
+    };
     protected List<JElement> children = new LinkedList<>();
 
     public String getTagName() {
@@ -28,6 +49,22 @@ public class JElement extends JObject {
 
     public void setTagName(String tagName) {
         this.tagName = tagName;
+    }
+
+    public String getSlotName() {
+        return slotName;
+    }
+
+    public void setSlotName(String slotName) {
+        this.slotName = slotName;
+    }
+
+    public String getSlotRef() {
+        return slotRef;
+    }
+
+    public void setSlotRef(String slotRef) {
+        this.slotRef = slotRef;
     }
 
     public Object getContext() {
@@ -78,12 +115,20 @@ public class JElement extends JObject {
         this.textContent = textContent;
     }
 
-    public String getTemplateContent() {
-        return templateContent;
+    public String getEvalContent() {
+        return evalContent;
     }
 
-    public void setTemplateContent(String templateContent) {
-        this.templateContent = templateContent;
+    public void setEvalContent(String evalContent) {
+        this.evalContent = evalContent;
+    }
+
+    public String getDocTypeTag() {
+        return docTypeTag;
+    }
+
+    public void setDocTypeTag(String docTypeTag) {
+        this.docTypeTag = docTypeTag;
     }
 
     public boolean isComponent() {
@@ -102,37 +147,76 @@ public class JElement extends JObject {
         isTextNode = textNode;
     }
 
-    public boolean isTemplateNode() {
-        return isTemplateNode;
+    public boolean isEvalNode() {
+        return isEvalNode;
     }
 
-    public void setTemplateNode(boolean templateNode) {
-        isTemplateNode = templateNode;
+    public void setEvalNode(boolean evalNode) {
+        isEvalNode = evalNode;
     }
 
-    public JElement[] children() {
-        return this.children.toArray(JElement[]::new);
+    public String getIncludePath() {
+        return includePath;
     }
 
-    public String[][] attribute() {
-        return this.attributes.entrySet().stream().map(e -> {
-            String[] pair = new String[2];
-            pair[0] = e.getKey();
-            pair[1] = e.getValue();
-            return pair;
-        }).toArray(String[][]::new);
+    public void setIncludePath(String includePath) {
+        this.includePath = includePath;
     }
 
-    public boolean canRender() {
-        return ifExpression != null ? (Boolean) MVEL.eval(ifExpression, context) : true;
+    public String getTemplatePath() {
+        return templatePath;
     }
 
-    public boolean isListElement() {
-        return listExpression != null;
+    public void setTemplatePath(String templatePath) {
+        this.templatePath = templatePath;
     }
 
-    public String templateMarkup() {
-        return null;
+    public JElement getTemplateElement() {
+        return templateElement;
+    }
+
+    public void setTemplateElement(JElement templateElement) {
+        this.templateElement = templateElement;
+    }
+
+    public boolean isLayoutSlot() {
+        return isLayoutSlot;
+    }
+
+    public void setLayoutSlot(boolean layoutSlot) {
+        isLayoutSlot = layoutSlot;
+    }
+
+    public boolean isSlotNode() {
+        return isSlotNode;
+    }
+
+    public void setSlotNode(boolean slotNode) {
+        isSlotNode = slotNode;
+    }
+
+    public boolean isLayoutNode() {
+        return isLayoutNode;
+    }
+
+    public void setLayoutNode(boolean layoutNode) {
+        isLayoutNode = layoutNode;
+    }
+
+    public boolean isDecoratorNode() {
+        return isDecoratorNode;
+    }
+
+    public void setDecoratorNode(boolean decoratorNode) {
+        isDecoratorNode = decoratorNode;
+    }
+
+    public JElement getDocTypeElement() {
+        return docTypeElement;
+    }
+
+    public void setDocTypeElement(JElement docTypeElement) {
+        this.docTypeElement = docTypeElement;
     }
 
     public String render() {
@@ -149,32 +233,110 @@ public class JElement extends JObject {
         return builder.toString();
     }
 
+    public String renderDecorator() {
+        StringBuilder builder = new StringBuilder();
+        try {
+            JContext templateProcessor = new JContext(context);
+            TemplateParser parser = new TemplateParser(templatePath, templateProcessor);
+            JElement templateRoot = parser.parse();
+            setTemplateElement(templateRoot);
+
+            for (JElement child : children) {
+                child.setContext(context);
+                //delay rendering until when the slot in the template is reached
+                if (child.isSlotNode && templateRoot.slots.containsKey(child.slotName)) {
+                    templateRoot.slots.put(child.slotName, child);
+                    continue;
+                }
+                String tagName = child.tagName.replaceFirst("x-", "");
+                if (decoratorTags.contains(tagName)) {
+                    if (tagName.equals("doctype")) {
+                        templateRoot.setDocTypeElement(child);
+                    } else {
+                        child.setDecoratorNode(true);
+                        templateRoot.decorators.get(tagName).add(child);
+                    }
+                }
+            }
+
+            if(((JElement)root()).docTypeTag != null){
+                builder.append(((JElement)root()).docTypeTag);
+            }
+
+            builder.append(templateProcessor.process(templateRoot));
+        } catch (XMLStreamException e) {
+            throw new RuntimeException(e);
+        }
+        return builder.toString();
+    }
+
     public String renderComponent() {
         if (ifExpression == null || (Boolean) MVEL.eval(ifExpression, context)) {
             StringBuilder builder = new StringBuilder();
-            builder.append("<").append(tagName.replaceFirst("x-", ""));
-            for (String attr : attributes.keySet()) {
-                builder.append(" ").append(attr).append("=").append("\"").append(attributes.get(attr)).append("\"");
-            }
-            builder.append(">");
-            if (textExpression != null) {
-                builder.append(MVEL.eval(textExpression, context));
-            } else if (templateContent != null) {
-                builder.append(TemplateRuntime.eval(templateContent, context));
-            } else {
-                for (JElement child : children) {
-                    child.setContext(context);
-                    builder.append(child.render());
+            if (tagName.equals("x-layout")) {
+                builder.append(renderDecorator());
+            } else if (includePath != null) {
+                builder.append(renderIncluded());
+            } else if (isLayoutSlot) {
+                setLayoutSlot(false);
+                builder.append(((JElement) root()).slots.get(getSlotRef()).render());
+            } else if (decoratorTags.contains(tagName.replaceFirst("x-", "")) && !isDecoratorNode()) {
+                switch (tagName) {
+                    case "x-meta" -> {
+                        for (JElement meta : ((JElement) root()).decorators.get("meta")) {
+                            builder.append(meta.renderComponent());
+                        }
+                    }
+                    case "x-link" -> {
+                        for (JElement link : ((JElement) root()).decorators.get("link")) {
+                            builder.append(link.render());
+                        }
+                    }
+                    case "x-script" -> {
+                        for (JElement script : ((JElement) root()).decorators.get("script")) {
+                            builder.append(script.render());
+                        }
+                    }
+                    default -> throw new RuntimeException("Unsupported decorator tag - '" + tagName + "'");
                 }
-            }
-            if (selfClosing.contains(tagName.toLowerCase())) {
-                builder.deleteCharAt(builder.length() - 1).append("/>");
             } else {
-                builder.append("</").append(tagName.replaceFirst("x-", "")).append(">");
+                builder.append("<").append(tagName.replaceFirst("x-", ""));
+                for (String attr : attributes.keySet()) {
+                    builder.append(" ").append(attr).append("=").append("\"").append(attributes.get(attr)).append("\"");
+                }
+                builder.append(">");
+                if (textExpression != null) {
+                    builder.append(MVEL.eval(textExpression, context));
+                } else if (evalContent != null) {
+                    builder.append(TemplateRuntime.eval(evalContent, context));
+                } else {
+                    for (JElement child : children) {
+                        child.setContext(context);
+                        builder.append(child.render());
+                    }
+                }
+                if (selfClosingTags.contains(tagName.toLowerCase().replaceFirst("x-", ""))) {
+                    builder.deleteCharAt(builder.length() - 1).append("/>");
+                } else {
+                    builder.append("</").append(tagName.replaceFirst("x-", "")).append(">");
+                }
             }
             return builder.toString();
         }
         return "";
+    }
+
+    public String renderIncluded() {
+        StringBuilder builder = new StringBuilder();
+        try {
+            JContext includeProcessor = new JContext(context);
+            TemplateParser parser = new TemplateParser(includePath, includeProcessor);
+            JElement includeRoot = parser.parse();
+            builder.append(includeProcessor.process(includeRoot));
+        } catch (XMLStreamException e) {
+            throw new RuntimeException(e);
+        }
+        return builder.toString();
     }
 
     public String renderNonComponent() {
@@ -191,7 +353,7 @@ public class JElement extends JObject {
                 child.setContext(context);
                 builder.append(child.render());
             }
-            if (selfClosing.contains(tagName.toLowerCase())) {
+            if (selfClosingTags.contains(tagName.toLowerCase())) {
                 builder.deleteCharAt(builder.length() - 1).append("/>");
             } else {
                 builder.append("</").append(tagName).append(">");
@@ -214,7 +376,7 @@ public class JElement extends JObject {
                         builder.append(child.render());
                     }
                 }
-                if (selfClosing.contains(tagName.toLowerCase())) {
+                if (selfClosingTags.contains(tagName.toLowerCase())) {
                     builder.deleteCharAt(builder.length() - 1).append("/>");
                 } else {
                     builder.append("</").append(tagName.replaceFirst("x-", "")).append(">");

@@ -16,11 +16,11 @@ import java.util.Stack;
 public class TemplateParser {
 
     String path;
-    TemplateProcessor processor;
+    JContext processor;
     Stack<JElement> stack = new Stack<>();
     JElement lastPopped;
 
-    public TemplateParser(String path, TemplateProcessor processor) {
+    public TemplateParser(String path, JContext processor) {
         this.path = path;
         this.processor = processor;
     }
@@ -40,6 +40,14 @@ public class TemplateParser {
 
             if (nextEvent.isStartElement()) {
                 JElement element = new JElement();
+
+                // add parent-child relationship
+                if (!stack.isEmpty()) {
+                    stack.peek().children.add(element);
+                    element.parent(stack.peek());
+                }
+
+                // introspect element
                 StartElement startElement = nextEvent.asStartElement();
                 String startTag = startElement.getName().getLocalPart();
                 element.setTagName(startTag);
@@ -67,8 +75,32 @@ public class TemplateParser {
                                 element.setTextExpression(attrValue);
                                 break;
                             }
+                            case "x-path": {
+                                element.setIncludePath(attrValue);
+                                break;
+                            }
+                            case "x-eval": {
+                                element.setEvalNode((Boolean) MVEL.eval(attrValue));
+                                break;
+                            }
+                            case "x-slot": {
+                                element.setLayoutSlot(true);
+                                element.setSlotRef(attrValue);
+                                ((JElement)element.root()).slots.put(attrValue, element);
+                                break;
+                            }
+                            case "x-named": {
+                                element.setSlotNode(true);
+                                element.setSlotName(attrValue);
+                                break;
+                            }
                             case "x-template": {
-                                element.setTemplateNode((Boolean) MVEL.eval(attrValue));
+                                element.setLayoutNode(true);
+                                element.setTemplatePath(attrValue);
+                                break;
+                            }
+                            case "x-doctype": {
+                                ((JElement)element.root()).setDocTypeTag(attrValue);
                                 break;
                             }
                             default: {
@@ -84,12 +116,6 @@ public class TemplateParser {
                         String attrValue = attribute.getValue();
                         element.attributes.put(attrName, attrValue);
                     }
-                }
-
-                // add parent-child relationship
-                if (!stack.isEmpty()) {
-                    stack.peek().children.add(element);
-                    element.parent(stack.peek());
                 }
 
                 // push new element into the stack
@@ -111,8 +137,8 @@ public class TemplateParser {
             if (nextEvent.isCharacters()) {
                 String data = nextEvent.asCharacters().getData().trim();
                 if (!data.isEmpty()) {
-                    if (stack.peek().isTemplateNode) {
-                        stack.peek().setTemplateContent(data);
+                    if (stack.peek().isEvalNode) {
+                        stack.peek().setEvalContent(data);
                     } else {
                         JElement textNode = new JElement();
                         textNode.setTextNode(true);

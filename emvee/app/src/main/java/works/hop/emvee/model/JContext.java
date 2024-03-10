@@ -4,12 +4,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TemplateProcessor implements JObserver {
+public class JContext implements JObserver {
 
     Map<String, List<JNode>> observables = new LinkedHashMap<>();
     Object context;
 
-    public TemplateProcessor(Object context) {
+    public JContext(Object context) {
         this.context = context;
     }
 
