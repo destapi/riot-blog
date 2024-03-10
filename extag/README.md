@@ -6,3 +6,5 @@
 
 Additional MVEL notes
 
+> GitBash characters messed up? Add to .bashrc  
+> export TERM=cygwin

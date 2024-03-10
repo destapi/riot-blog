@@ -1,4 +1,4 @@
-package works.hop.emvee;
+package works.hop.extag;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,7 +17,7 @@ public class App {
 
     private static ConnectionFactory configureSsl(HttpConnectionFactory https) {
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
-        sslContextFactory.setKeyStorePath("emvee/.env/server-keystore");
+        sslContextFactory.setKeyStorePath("extag/.env/server-keystore");
         sslContextFactory.setKeyStorePassword("changeme");
         return new SslConnectionFactory(sslContextFactory, https.getProtocol());
     }
@@ -88,7 +88,7 @@ public class App {
     public static void main(String[] args) throws Exception {
         // Create and configure a ThreadPool.
         QueuedThreadPool threadPool = new QueuedThreadPool();
-        threadPool.setName("emvee-server");
+        threadPool.setName("extag-server");
 
         // Create a Server instance.
         Server server = new Server(threadPool);

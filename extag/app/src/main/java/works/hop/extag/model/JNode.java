@@ -1,4 +1,4 @@
-package works.hop.emvee.model;
+package works.hop.extag.model;
 
 import java.util.function.Predicate;
 

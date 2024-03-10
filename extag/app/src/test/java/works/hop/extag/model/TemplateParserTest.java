@@ -1,4 +1,4 @@
-package works.hop.emvee.model;
+package works.hop.extag.model;
 
 import org.junit.jupiter.api.Test;
 

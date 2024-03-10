@@ -37,7 +37,7 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = 'works.hop.emvee.App'
+    mainClass = 'works.hop.extag.App'
 }
 
 tasks.named('test') {
